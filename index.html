@@ -1654,7 +1654,6 @@ canvas{max-width:100%;display:block}
   <div class="fj-desc">L'application s'adapte à la forme choisie. Ce choix est enregistré pour tous les utilisateurs de la société et reste modifiable : le bouton « ← Menu » ramène ici.</div>
   <div class="fj-grid" id="fj-grid"></div>
   <div class="fj-foot">
-   <button class="ac-btn-gold" id="fj-fermer" type="button" hidden>← Retour</button>
    <button class="ac-btn-outline" id="fj-deconnexion" type="button" hidden>Se déconnecter</button>
   </div>
  </div>
@@ -1727,6 +1726,7 @@ const FORMES=[
  {id:'sa',  sigle:'SA',  nom:'Société anonyme', txt:'Société par actions dotée d\'un conseil d\'administration.', dispo:false},
  {id:'snc', sigle:'SNC', nom:'Société en nom collectif', txt:'Associés commerçants, solidaires des dettes de la société.', dispo:false}
 ];
+FORMES.sort((a,b)=>a.sigle.localeCompare(b.sigle,'fr'));   // menu classé par ordre alphabétique des sigles, y compris les formes ajoutées plus tard
 let FORME=null;                                   // forme en cours (une entrée de FORMES)
 const formeById=id=>FORMES.find(f=>f.id===id)||null;
 async function lireForme(){
@@ -1737,11 +1737,12 @@ async function enregistrerForme(id){
  if(FIREBASE_READY)await fbReq('PATCH',DB_PATH+'/societe',{forme:id});
  else try{localStorage.setItem('app_forme',id);}catch(e){}
 }
-// Affiche le menu et rend la forme choisie (ou null si l'on referme sans choisir, quand c'est permis)
+// Affiche le menu : uniquement les formes et « Se déconnecter ». Rend la forme choisie ; pour revenir dans le module
+// en cours, on clique sur sa carte (« Forme actuelle »). Échap referme aussi le menu quand un module est déjà ouvert.
 function afficherChoixForme(peutFermer){
  return new Promise(resolve=>{
   const ov=document.getElementById('forme-overlay'),grid=document.getElementById('fj-grid');
-  const fermer=document.getElementById('fj-fermer'),deco=document.getElementById('fj-deconnexion');
+  const deco=document.getElementById('fj-deconnexion');
   const finir=f=>{ov.classList.remove('open');document.removeEventListener('keydown',clavier);resolve(f);};
   const clavier=e=>{if(e.key==='Escape'&&peutFermer)finir(null);};
   grid.textContent='';
@@ -1755,8 +1756,6 @@ function afficherChoixForme(peutFermer){
    if(f.dispo)b.onclick=()=>finir(f);
    grid.appendChild(b);
   });
-  fermer.hidden=!peutFermer;fermer.onclick=()=>finir(null);
-  if(peutFermer&&FORME)fermer.textContent='← Revenir au module '+FORME.sigle;
   deco.hidden=!FIREBASE_READY;deco.onclick=()=>logout();          // sans base (aperçu), il n'y a pas de session à fermer
   document.addEventListener('keydown',clavier);
   ov.classList.add('open');ov.scrollTop=0;
