@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestion SCI</title>
+<title>Ma Société</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23141210'/%3E%3Cpath d='M14 31 32 16l18 15v19H38V38H26v12H14z' fill='none' stroke='%23C9A84C' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
 
@@ -39,6 +39,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ac-feat-icon svg{width:20px;height:20px;fill:none;stroke:#C9A84C;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .ac-brand-text{font-size:clamp(36px,6vw,64px);font-weight:700;color:#fff;letter-spacing:-0.5px;line-height:1.05;margin-bottom:6px}
 .ac-brand-text span{color:#C9A84C}
+.ac-forme-link{margin-top:22px;font-size:12px;color:rgba(255,255,255,0.4);cursor:pointer;text-decoration:underline;text-underline-offset:3px;position:relative}
+.ac-forme-link:hover{color:#C9A84C}
+/* ===== CHOIX DE LA FORME JURIDIQUE ===== */
+#forme-overlay{display:none;position:fixed;inset:0;z-index:10001;overflow-y:auto;background:linear-gradient(160deg,#141210 0%,#1f1a14 55%,#2a2115 100%);padding:44px 20px 60px}
+#forme-overlay.open{display:block}
+.fj-wrap{max-width:900px;margin:0 auto}
+.fj-brand{font-size:15px;font-weight:700;color:#fff;letter-spacing:0.3px;margin-bottom:44px}
+.fj-brand span{color:#C9A84C}
+.fj-label{font-size:11px;letter-spacing:3px;color:#C9A84C;text-transform:uppercase;font-weight:500;margin-bottom:12px}
+.fj-title{font-size:clamp(24px,3.5vw,34px);font-weight:700;color:#fff;line-height:1.2;margin-bottom:12px}
+.fj-desc{font-size:14px;color:rgba(255,255,255,0.5);line-height:1.7;max-width:600px;margin-bottom:32px}
+.fj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:14px}
+.fj-card{text-align:left;font-family:inherit;background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.12);border-radius:12px;padding:20px;cursor:pointer;color:#fff;transition:border-color .2s,transform .2s,background .2s;display:flex;flex-direction:column;gap:7px;min-height:168px}
+.fj-card:hover:not(:disabled),.fj-card:focus-visible{border-color:#C9A84C;background:rgba(201,168,76,0.07);transform:translateY(-2px);outline:none}
+.fj-card.actuelle{border-color:#C9A84C;background:rgba(201,168,76,0.09)}
+.fj-card:disabled{cursor:not-allowed;opacity:0.45}
+.fj-sigle{font-size:26px;font-weight:700;color:#C9A84C;line-height:1;letter-spacing:0.5px}
+.fj-nom{font-size:13px;font-weight:600;line-height:1.35}
+.fj-txt{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.55;flex:1}
+.fj-badge{align-self:flex-start;font-size:10px;letter-spacing:0.8px;text-transform:uppercase;border-radius:99px;padding:3px 10px;border:0.5px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.6)}
+.fj-badge.ok{border-color:rgba(201,168,76,0.7);color:#C9A84C}
+.fj-foot{margin-top:28px;display:flex;gap:10px;flex-wrap:wrap}
 .topbar-right{display:flex;align-items:center;gap:14px}
 .btn-accueil{padding:5px 13px;border-radius:6px;border:0.5px solid rgba(201,168,76,0.35);background:transparent;color:rgba(201,168,76,0.8);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;text-decoration:none;letter-spacing:0.2px}
 .btn-accueil:hover{background:rgba(201,168,76,0.12);color:#C9A84C;border-color:rgba(201,168,76,0.6)}
@@ -295,18 +317,20 @@ canvas{max-width:100%;display:block}
   <div class="ac-nav-links">
    <a onclick="document.getElementById('ac-feat-anchor').scrollIntoView({behavior:'smooth'})">Fonctionnalités</a>
    <a onclick="document.getElementById('ac-assoc-anchor').scrollIntoView({behavior:'smooth'})">Associés</a>
+   <a onclick="ouvrirChoixForme()">Forme juridique</a>
   </div>
   <button class="ac-btn-enter" onclick="enterApp()">Accéder à la gestion →</button>
  </nav>
 
  <section class="ac-hero" id="ac-hero-anchor">
   <img class="ac-logo" id="ac-hero-logo-img" alt="" hidden>
-  <div class="ac-sub">Gestion de patrimoine immobilier</div>
+  <div class="ac-sub" data-forme></div>
   <div class="ac-brand-text" id="ac-hero-brand" data-brand></div>
   <div class="ac-tagline">Biens, comptabilité, comptes courants d'associés, simulation d'achat et dossier banque</div>
   <div class="ac-cta">
    <button class="ac-btn-gold" onclick="enterApp()">Accéder à la gestion →</button>
   </div>
+  <a class="ac-forme-link" onclick="ouvrirChoixForme()">Changer de forme juridique</a>
   <div class="ac-scroll"><span>Découvrir</span><div class="ac-scroll-line"></div></div>
  </section>
 
@@ -366,7 +390,7 @@ canvas{max-width:100%;display:block}
 
  <footer class="ac-footer">
   <div class="ac-footer-logo" data-brand></div>
-  <div class="ac-footer-copy">Application de gestion — accès réservé aux associés</div>
+  <div class="ac-footer-copy">Application de gestion — accès réservé</div>
  </footer>
 </div>
 </template>
@@ -1587,11 +1611,25 @@ canvas{max-width:100%;display:block}
 <div id="login-overlay" style="display:none;position:fixed;inset:0;z-index:10000;background:linear-gradient(160deg,#141210 0%,#1f1a14 55%,#2a2115 100%);align-items:center;justify-content:center;padding:20px">
  <div style="background:var(--surface);color:var(--text);border-radius:var(--radius-lg);padding:28px;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,.45)">
   <div style="text-align:center;margin:0 0 14px"><img id="login-logo" alt="" hidden style="width:210px;max-width:80%;height:auto"><div id="login-brand" class="login-brand" data-brand></div></div>
-  <div style="font-size:13px;color:var(--text2);margin-bottom:18px;text-align:center">Accès réservé aux associés. Connectez-vous pour continuer.</div>
+  <div style="font-size:13px;color:var(--text2);margin-bottom:18px;text-align:center">Accès réservé. Connectez-vous pour continuer.</div>
   <div class="fg"><label for="login-email">Email</label><input type="email" id="login-email" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pwd').focus()"></div>
   <div class="fg"><label for="login-pwd">Mot de passe</label><input type="password" id="login-pwd" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
   <div id="login-error" style="color:var(--red);font-size:12px;min-height:18px;margin-bottom:10px"></div>
   <button class="btn btn-primary" id="login-btn" style="width:100%" onclick="doLogin()">Se connecter</button>
+ </div>
+</div>
+<!-- CHOIX DE LA FORME JURIDIQUE : affiché à la première connexion, puis depuis l'écran d'accueil -->
+<div id="forme-overlay" role="dialog" aria-modal="true" aria-labelledby="fj-title">
+ <div class="fj-wrap">
+  <div class="fj-brand" data-brand></div>
+  <div class="fj-label">Forme juridique</div>
+  <div class="fj-title" id="fj-title">Quelle est la forme juridique de votre société ?</div>
+  <div class="fj-desc">L'application s'adapte à la forme choisie. Ce choix est enregistré pour tous les utilisateurs de la société et reste modifiable depuis l'écran d'accueil.</div>
+  <div class="fj-grid" id="fj-grid"></div>
+  <div class="fj-foot">
+   <button class="ac-btn-outline" id="fj-fermer" type="button" hidden>← Retour</button>
+   <button class="ac-btn-outline" id="fj-deconnexion" type="button" hidden>Se déconnecter</button>
+  </div>
  </div>
 </div>
 <div id="dossier-print"></div>
@@ -1633,8 +1671,8 @@ const CONFIG_PATH = '/sci_config';  // Facultatif : configuration propre au clie
 // ---- Valeurs dérivées (ne pas modifier) ----
 FIREBASE_URL = FIREBASE_URL.trim().replace(/\/+$/,'');
 const FIREBASE_READY = !!(FIREBASE_URL && FIREBASE_API_KEY);                 // faux = aperçu sans enregistrement
-const SOCIETE = SOCIETE_NOM.trim().replace(/\s+/g,' ') || 'Ma SCI';
-const SOCIETE_SLUG = SOCIETE.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'') || 'sci';
+const SOCIETE = SOCIETE_NOM.trim().replace(/\s+/g,' ') || 'Ma Société';
+const SOCIETE_SLUG = SOCIETE.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'') || 'societe';
 
 // ---- Stockage du navigateur isolé par installation ----
 // Les réglages gardés dans le navigateur sont rangés sous un préfixe propre à cette base : deux installations
@@ -1648,6 +1686,63 @@ const STORAGE_NS = (FIREBASE_URL ? FIREBASE_URL.replace(/^https?:\/\//,'').split
  P.removeItem=function(k){return r.call(this,ns(this,k));};
 })();
 
+// ============================================================
+// FORME JURIDIQUE — choisie à la première connexion, enregistrée pour toute la société (DB_PATH/societe/forme).
+// Un module par forme : passer « dispo » à true quand le module de cette forme est construit.
+// ============================================================
+const FORMES=[
+ {id:'sci', sigle:'SCI', nom:'Société civile immobilière', txt:'Gestion d\'un patrimoine immobilier à plusieurs associés.', dispo:true},
+ {id:'ei',  sigle:'EI',  nom:'Entreprise individuelle', txt:'Activité exercée en nom propre, micro-entreprise comprise.', dispo:false},
+ {id:'eurl',sigle:'EURL',nom:'Entreprise unipersonnelle à responsabilité limitée', txt:'SARL à associé unique.', dispo:false},
+ {id:'sarl',sigle:'SARL',nom:'Société à responsabilité limitée', txt:'De deux à cent associés, responsabilité limitée aux apports.', dispo:false},
+ {id:'sasu',sigle:'SASU',nom:'Société par actions simplifiée unipersonnelle', txt:'SAS à associé unique.', dispo:false},
+ {id:'sas', sigle:'SAS', nom:'Société par actions simplifiée', txt:'Société par actions aux statuts très libres.', dispo:false},
+ {id:'sa',  sigle:'SA',  nom:'Société anonyme', txt:'Société par actions dotée d\'un conseil d\'administration.', dispo:false},
+ {id:'snc', sigle:'SNC', nom:'Société en nom collectif', txt:'Associés commerçants, solidaires des dettes de la société.', dispo:false}
+];
+let FORME=null;                                   // forme en cours (une entrée de FORMES)
+const formeById=id=>FORMES.find(f=>f.id===id)||null;
+async function lireForme(){
+ if(FIREBASE_READY){const s=await fbReq('GET',DB_PATH+'/societe');return s&&typeof s==='object'?s.forme:null;}
+ try{return localStorage.getItem('app_forme');}catch(e){return null;}      // aperçu sans base : gardé dans le navigateur
+}
+async function enregistrerForme(id){
+ if(FIREBASE_READY)await fbReq('PATCH',DB_PATH+'/societe',{forme:id});
+ else try{localStorage.setItem('app_forme',id);}catch(e){}
+}
+// Affiche le menu et rend la forme choisie (ou null si l'on referme sans choisir, quand c'est permis)
+function afficherChoixForme(peutFermer){
+ return new Promise(resolve=>{
+  const ov=document.getElementById('forme-overlay'),grid=document.getElementById('fj-grid');
+  const fermer=document.getElementById('fj-fermer'),deco=document.getElementById('fj-deconnexion');
+  const finir=f=>{ov.classList.remove('open');document.removeEventListener('keydown',clavier);resolve(f);};
+  const clavier=e=>{if(e.key==='Escape'&&peutFermer)finir(null);};
+  grid.textContent='';
+  FORMES.forEach(f=>{
+   const actuelle=!!FORME&&FORME.id===f.id;
+   const b=document.createElement('button');
+   b.type='button';b.className='fj-card'+(actuelle?' actuelle':'');b.disabled=!f.dispo;
+   const add=(cls,t)=>{const d=document.createElement('div');d.className=cls;d.textContent=t;b.appendChild(d);};
+   add('fj-sigle',f.sigle);add('fj-nom',f.nom);add('fj-txt',f.txt);
+   add('fj-badge'+(f.dispo?' ok':''),actuelle?'Forme actuelle':(f.dispo?'Disponible':'Bientôt disponible'));
+   if(f.dispo)b.onclick=()=>finir(f);
+   grid.appendChild(b);
+  });
+  fermer.hidden=!peutFermer;fermer.onclick=()=>finir(null);
+  deco.hidden=!(FIREBASE_READY&&!peutFermer);deco.onclick=()=>logout();
+  document.addEventListener('keydown',clavier);
+  ov.classList.add('open');ov.scrollTop=0;
+  const premier=grid.querySelector('.fj-card:not(:disabled)');if(premier)premier.focus();
+ });
+}
+// Depuis l'écran d'accueil : changer de forme (l'application se recharge sur le module de la nouvelle forme)
+async function ouvrirChoixForme(){
+ const f=await afficherChoixForme(true);
+ if(!f||(FORME&&f.id===FORME.id))return;
+ try{await enregistrerForme(f.id);location.reload();}
+ catch(e){console.error(e);alert('La forme juridique n\'a pas pu être enregistrée : '+describeError(e));}
+}
+
 // ---- Nom et logo de la société, posés partout où ils apparaissent ----
 function brandHtml(){
  const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1658,6 +1753,7 @@ function applyBrand(){
  document.title=SOCIETE;
  document.querySelectorAll('[data-brand]').forEach(el=>{el.innerHTML=brandHtml();});
  document.querySelectorAll('[data-brand-text]').forEach(el=>{el.textContent=SOCIETE;});
+ document.querySelectorAll('[data-forme]').forEach(el=>{el.textContent=FORME?FORME.sigle+' · '+FORME.nom:'';});
  ['logo-img','login-logo','ac-nav-logo-img','ac-hero-logo-img'].forEach(id=>{
   const el=document.getElementById(id);if(!el)return;
   if(SOCIETE_LOGO){el.src=SOCIETE_LOGO;el.alt=SOCIETE;el.hidden=false;}else el.hidden=true;
@@ -1959,6 +2055,17 @@ async function bootApp(){
    return;
   }
   // sans Firebase (les deux valeurs vides) : aperçu de l'application vierge, sans connexion ni enregistrement
+  // Forme juridique : celle de la société si elle est déjà choisie, sinon le menu (première connexion)
+  FORME=formeById(await lireForme());
+  if(!FORME||!FORME.dispo){
+   FORME=null;
+   if(FIREBASE_READY)hideLogin();
+   msg.style.display='none';
+   const choix=await afficherChoixForme(false);
+   bootMsg('Chargement…',false);
+   await enregistrerForme(choix.id);
+   FORME=choix;
+  }
   window.__BOOT=buildBoot(c);
   if(FIREBASE_READY){
    // Associés renommés / ajoutés depuis l'application : stockés dans DB_PATH/associes
@@ -5706,6 +5813,8 @@ function buildGuideHtml(){
   <h3>Connexion</h3>
   <ol><li>Ouvrez le lien de l'application et saisissez votre <strong>email</strong> et votre <strong>mot de passe</strong>. Les comptes sont créés par la personne qui administre l'outil ; il n'est pas possible de s'inscrire soi-même.</li>
   <li>La session reste ouverte sur l'appareil. Le bouton ${U('Déconnexion')} (en haut) la ferme : utilisez-le sur un ordinateur partagé.</li></ol>
+  <h3>La forme juridique</h3>
+  <p>À la première connexion, l'application demande la <strong>forme juridique</strong> de la société (SCI, SARL, SAS…) et s'y adapte. Ce choix est enregistré pour tous les utilisateurs ; il se modifie depuis l'écran d'accueil, par ${U('Changer de forme juridique')}.</p>
   <h3>L'écran d'accueil</h3>
   <p>Après connexion, l'écran d'accueil présente la SCI, ses fonctionnalités et ses associés. Le bouton ${U('Accéder à la gestion →')} ouvre l'application. Vous y retrouvez aussi ce guide : ${U('Guide (PDF)')} dans le menu, ou le bouton ${U('Guide d\'utilisation (PDF)')} ; le bouton ${U('Guide')} reste disponible en haut de l'application.</p>
   <h3>Navigation</h3>
