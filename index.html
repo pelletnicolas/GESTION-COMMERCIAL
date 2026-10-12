@@ -82,6 +82,47 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
  .btn-menu-txt{display:none}
  .topbar .btn-accueil{padding:5px 8px}
  #sync-label{display:none}
+}
+/* menu : renommer les sociétés */
+.fj-renommer{margin-top:22px;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:18px 20px}
+.fj-ren-titre{font-size:14px;font-weight:600;margin-bottom:12px}
+.fj-ren-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.fj-ren-grid label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--text2);font-weight:600}
+.fj-ren-grid input{padding:9px 11px;border:0.5px solid var(--border2);border-radius:8px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--text);font-weight:400}
+.fj-ren-grid input:focus{outline:none;border-color:var(--accent)}
+.fj-ren-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.fj-ren-actions button{padding:10px 22px;font-size:14px}
+#fj-ren-msg{font-size:12px;color:var(--text2)}
+/* guide d'utilisation du groupe */
+#guide-overlay{display:none;position:fixed;inset:0;z-index:10003;overflow-y:auto;background:var(--bg);color:var(--text)}
+#guide-overlay.open{display:block}
+.gd-bar{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 20px;background:var(--surface);border-bottom:0.5px solid var(--border2)}
+.gd-bar-t{font-size:14px;font-weight:600}
+.gd-bar-b{display:flex;gap:8px;flex-wrap:wrap}
+.gd-bar-b button{padding:8px 16px;font-size:13px}
+.gd-body{max-width:820px;margin:0 auto;padding:30px 20px 70px;font-size:14px;line-height:1.7}
+.gd-cover{margin-bottom:28px}
+.gd-kicker{font-size:11px;letter-spacing:3px;color:var(--accent-ink);text-transform:uppercase;font-weight:600;margin-bottom:10px}
+.gd-body h1{font-size:clamp(24px,3.5vw,32px);line-height:1.2;margin:0 0 10px}
+.gd-body h2{font-size:18px;margin:30px 0 10px;padding-top:6px;border-top:0.5px solid var(--border2)}
+.gd-body p,.gd-body ul,.gd-body ol{margin:0 0 10px;color:var(--text)}
+.gd-body ul,.gd-body ol{padding-left:22px}
+.gd-body li{margin-bottom:5px}
+.gd-cover p{color:var(--text2);max-width:620px}
+.gd-tab{overflow-x:auto}
+.gd-body table{width:100%;border-collapse:collapse;font-size:13px;line-height:1.55}
+.gd-body th{text-align:left;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--text2);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--border2)}
+.gd-body td{padding:9px 10px;border-bottom:0.5px solid var(--border);vertical-align:top}
+.gd-body td:first-child{font-weight:600;white-space:nowrap}
+.gd-note{font-size:12px;color:var(--text2)}
+@media(max-width:640px){.gd-body td:first-child{white-space:normal}.gd-bar{padding:10px 14px}}
+@media print{
+ body.guide-print>*:not(#guide-overlay){display:none!important}
+ body.guide-print #guide-overlay{position:static;display:block;overflow:visible;background:#fff;color:#111}
+ body.guide-print .gd-bar{display:none}
+ body.guide-print .gd-body{padding:0;max-width:none;color:#111}
+ body.guide-print .gd-body h2{break-after:avoid}
+ body.guide-print .gd-body tr{break-inside:avoid}
 }/* ===== MODULE EI (entreprise individuelle) ===== */
 #app-ei{display:none}
 #app-ei.on{display:flex}
@@ -504,7 +545,7 @@ canvas{max-width:100%;display:block}
  <div class="topbar">
  <div class="topbar-left">
  <button class="btn-accueil" id="btn-menu" type="button" onclick="ouvrirChoixForme()" title="Revenir au menu des sociétés" aria-label="Revenir au menu des sociétés">←<span class="btn-menu-txt"> Menu</span></button>
- <div class="logo" id="logo-link" onclick="showAccueil()">
+ <div class="logo" id="logo-link" onclick="showMainTab('gestion')">
  <img class="logo-img" id="logo-img" alt="" hidden>
  <b id="brand-name" data-brand style="font-weight:inherit"></b>
  </div>
@@ -1724,6 +1765,7 @@ canvas{max-width:100%;display:block}
    </div>
   </div>
   <div class="topbar-right">
+   <button class="btn-accueil" type="button" onclick="ouvrirGuide()" title="Guide d'utilisation">Guide</button>
    <button class="btn-accueil" type="button" id="ei-btn-logout" onclick="logout()">Déconnexion</button>
    <div class="sync-wrap"><div class="sync-dot" id="ei-sync-dot"></div><span id="ei-sync-label">Connexion…</span></div>
   </div>
@@ -1755,7 +1797,18 @@ canvas{max-width:100%;display:block}
   <div class="fj-title" id="fj-title">Quelle société ouvrir ?</div>
   <div class="fj-desc">La holding et ses deux filiales partagent la même base : la holding lit les chiffres de la SARL et de la SCI pour sa vue consolidée. Le bouton « ← Menu » ramène ici.</div>
   <div class="fj-grid" id="fj-grid"></div>
+  <div class="fj-renommer" id="fj-renommer" hidden>
+   <div class="fj-ren-titre">Renommer les sociétés</div>
+   <div class="fj-ren-grid">
+    <label>Holding<input id="fj-nom-holding" type="text" maxlength="60" placeholder="Ex. : Martin Participations"></label>
+    <label>SARL<input id="fj-nom-sarl" type="text" maxlength="60" placeholder="Ex. : SARL Martin Services"></label>
+    <label>SCI<input id="fj-nom-sci" type="text" maxlength="60" placeholder="Ex. : SCI des Tilleuls"></label>
+   </div>
+   <div class="fj-ren-actions"><button class="ac-btn-gold" id="fj-ren-ok" type="button">Enregistrer</button><button class="ac-btn-outline" id="fj-ren-annuler" type="button">Annuler</button><span id="fj-ren-msg"></span></div>
+  </div>
   <div class="fj-foot">
+   <button class="ac-btn-outline" id="fj-guide" type="button">Guide d'utilisation</button>
+   <button class="ac-btn-outline" id="fj-renommer-btn" type="button">Renommer les sociétés</button>
    <button class="ac-btn-outline" id="fj-deconnexion" type="button" hidden>Se déconnecter</button>
   </div>
  </div>
@@ -1828,7 +1881,7 @@ const formeById=id=>FORMES.find(f=>f.id===id)||null;
 // La dernière société ouverte est mémorisée sur l'appareil : chacun retrouve la sienne à la connexion suivante
 async function lireForme(){try{return localStorage.getItem('app_forme');}catch(e){return null;}}
 async function enregistrerForme(id){try{localStorage.setItem('app_forme',id);}catch(e){}}
-// Noms des sociétés, renseignés dans leurs profils (holding, SARL) ou dans la synthèse de la SCI
+// Noms des sociétés : profils de la holding et de la SARL, réglages du groupe pour la SCI
 async function nomsSocietes(){
  if(!FIREBASE_READY)return {};
  try{
@@ -1857,11 +1910,38 @@ function afficherChoixForme(peutFermer){
    grid.appendChild(b);
   });
   deco.hidden=!FIREBASE_READY;deco.onclick=()=>logout();          // sans base (aperçu), il n'y a pas de session à fermer
+  document.getElementById('fj-guide').onclick=()=>ouvrirGuide();
+  const ren=document.getElementById('fj-renommer');ren.hidden=true;
+  document.getElementById('fj-renommer-btn').onclick=()=>ouvrirRenommer(grid);
   document.addEventListener('keydown',clavier);
   ov.classList.add('open');ov.scrollTop=0;
   const premier=grid.querySelector('.fj-card:not(:disabled)');if(premier)premier.focus();
-  nomsSocietes().then(N=>Object.keys(N).forEach(id=>{const c=grid.querySelector('[data-id="'+id+'"] .fj-nom');if(c&&N[id])c.textContent=N[id];}));
+  afficherNoms(grid);
  });
+}
+function afficherNoms(grid){
+ nomsSocietes().then(N=>FORMES.forEach(f=>{const c=grid.querySelector('[data-id="'+f.id+'"] .fj-nom');if(c)c.textContent=N[f.id]||f.nom;}));
+}
+// Renommer les sociétés depuis le menu : les noms sont enregistrés là où chaque module les lit
+// (profil de la holding, profil de la SARL, réglages du groupe pour la SCI), en une seule écriture
+async function ouvrirRenommer(grid){
+ const ren=document.getElementById('fj-renommer'),msg=document.getElementById('fj-ren-msg');
+ if(!ren.hidden){ren.hidden=true;return;}
+ msg.textContent='';
+ const N=await nomsSocietes();
+ ['holding','sarl','sci'].forEach(id=>{document.getElementById('fj-nom-'+id).value=N[id]||'';});
+ ren.hidden=false;document.getElementById('fj-nom-holding').focus();
+ document.getElementById('fj-ren-annuler').onclick=()=>{ren.hidden=true;};
+ document.getElementById('fj-ren-ok').onclick=async()=>{
+  const v=id=>document.getElementById('fj-nom-'+id).value.trim();
+  if(!FIREBASE_READY){msg.textContent='Aperçu sans base : les noms ne peuvent pas être enregistrés.';return;}
+  const lot={'holding/profil/nom':v('holding')||null,'sarl/profil/nom':v('sarl')||null,'groupe/config/nomHolding':v('holding')||null,'groupe/config/nomSci':v('sci')||null};
+  const hp=await fbReq('GET',DB_PATH+'/holding/profil/configure').catch(()=>null);
+  if(hp)lot['holding/profil/nomSci']=v('sci')||'';                 // la holding garde aussi le nom de la SCI dans son profil
+  msg.textContent='Enregistrement…';
+  try{await fbReq('PATCH',DB_PATH,lot);ren.hidden=true;afficherNoms(grid);}
+  catch(e){msg.textContent='Non enregistré : '+describeError(e);}
+ };
 }
 // Retour au menu central depuis un module (bouton « ← Menu ») : choisir une autre société recharge l'application sur son module
 async function ouvrirChoixForme(){
@@ -1870,6 +1950,75 @@ async function ouvrirChoixForme(){
  try{await enregistrerForme(f.id);location.reload();}
  catch(e){console.error(e);alert('Le choix n\'a pas pu être enregistré : '+describeError(e));}
 }
+// ============================================================
+// GUIDE D'UTILISATION DU GROUPE — ouvert depuis le menu central (et la barre du haut de la holding et de la SARL).
+// Affiché par-dessus l'écran, imprimable ou enregistrable en PDF.
+// ============================================================
+function guideHtml(){
+ const t=(titre,corps)=>`<section><h2>${titre}</h2>${corps}</section>`;
+ const tab=(head,rows)=>`<div class="gd-tab"><table><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+ return `<div class="gd-cover"><div class="gd-kicker">Guide d'utilisation</div><h1>Gérer la holding, la SARL et la SCI</h1>
+  <p>Une seule application pour les trois sociétés du groupe : chacune a ses propres écrans, et la holding rassemble leurs chiffres.</p></div>`
+ +t('1. Le principe',`<p>La <b>holding</b> détient la <b>SARL</b> (l'activité) et la <b>SCI</b> (l'immobilier). Les trois sociétés partagent la même base de données, protégée par votre connexion : la holding lit les chiffres de la SARL et de la SCI pour sa vue du groupe, et ce que vous saisissez entre sociétés s'inscrit des deux côtés.</p>
+  <ul><li><b>Menu des sociétés</b> (écran principal) : cliquez sur une société pour l'ouvrir. Le bouton <b>← Menu</b>, en haut à gauche de chaque société, y ramène.</li>
+  <li><b>Renommer les sociétés</b> : bouton du menu. Les noms s'affichent sur les cartes, dans la vue du groupe et dans les flux.</li>
+  <li><b>Se déconnecter</b> : bouton du menu, ou <b>Déconnexion</b> en haut à droite.</li>
+  <li>La pastille en haut à droite indique si la dernière modification est <b>Enregistrée</b>. En cas d'erreur, un bandeau rouge le signale et la modification est annulée à l'écran.</li></ul>`)
+ +t('2. Par où commencer',`<ol><li><b>SARL</b> : ouvrez-la et répondez aux trois questions du profil (activité, TVA, qui rémunère le dirigeant), puis indiquez les associés, l'exercice, le capital et le solde bancaire de départ.</li>
+  <li><b>Holding</b> : remplissez son profil — forme (SAS ou SARL), TVA, intégration fiscale, participations dans la SARL et la SCI avec leur date d'entrée, conventions signées.</li>
+  <li><b>SCI</b> : ouvrez-la une fois. Elle publie ses chiffres clés (biens, trésorerie, emprunts, loyers, résultat) pour la vue du groupe, et les met à jour à chaque ouverture.</li>
+  <li>Ensuite, au fil de l'eau : factures et dépenses dans la SARL, flux entre sociétés dans la holding, relevés et biens dans la SCI.</li></ol>`)
+ +t('3. La holding',tab(['Onglet','À quoi il sert'],[
+   ['Vue du groupe','Organigramme, trésorerie et résultat du groupe, impôt total, patrimoine immobilier, endettement net ; tableau des trois sociétés côte à côte ; prochaines échéances et points à surveiller.'],
+   ['Flux entre sociétés','Dividendes reçus, frais de gestion facturés, avances en compte courant (dans les deux sens), intérêts. Un flux avec la SARL s\'inscrit aussi dans la SARL ; le modifier ou le supprimer ici met les deux sociétés à jour.'],
+   ['Recettes et dépenses','Les autres mouvements de la holding : honoraires, frais bancaires, assurance… Import d\'un relevé bancaire possible.'],
+   ['Dirigeant et associés','Rémunération du dirigeant s\'il est payé par la holding, dividendes versés par la holding, argent avancé en compte courant.'],
+   ['Résultat et impôts','Résultat de la holding avec le régime mère-fille, puis comparaison de l\'impôt du groupe avec et sans intégration fiscale.'],
+   ['Simulations','Remonter un dividende de la SARL ; financer la SCI par une avance ; payer le dirigeant par la SARL ou par la holding.'],
+   ['Échéances, vigilance','Dates d\'impôt et de dépôt des comptes ; alertes sur les conditions du groupe (détention, conventions, taux d\'intérêt, clôtures).']]))
+ +t('4. La SARL',tab(['Onglet','À quoi il sert'],[
+   ['Tableau de bord','Chiffre d\'affaires, factures à encaisser, charges, résultat, impôt, trésorerie, comptes courants ; graphique mois par mois.'],
+   ['Clients, devis et factures','Devis transformés en factures, suivi des encaissements et des retards, relances.'],
+   ['Recettes et dépenses','Toutes les entrées et sorties d\'argent, avec la TVA si la société est redevable. Les frais facturés par la holding sont classés « Facturation intra-groupe ».'],
+   ['Produits, missions','Selon l\'activité : stock et marges pour la vente, temps passé pour les services.'],
+   ['Dirigeant et associés','Rémunération du gérant (si la SARL le paie), dividendes répartis selon les parts, compte courant de chaque associé. Les mouvements venant de la holding sont marqués « Holding » et se modifient dans la holding.'],
+   ['Résultat et impôts','Du chiffre d\'affaires au bénéfice distribuable, impôt sur les sociétés à 15 % puis 25 %.'],
+   ['Prévisionnel','Projection jusqu\'à la clôture, mois par mois, et trésorerie estimée.']]))
+ +t('5. La SCI',`<p>La SCI garde son module complet : biens, emprunts et locataires, comptabilité importée d'Odoo, comptes courants des associés, projection d'achat, dossier banque, marché et conseil d'achat. Son guide détaillé (PDF) s'ouvre avec le bouton <b>Guide</b> de sa barre du haut.</p>
+  <p>Ses chiffres remontent automatiquement dans la holding. En revanche, ses flux avec la holding (avance reçue, remboursement, dividende versé) sont à saisir aussi dans la SCI, car sa comptabilité vient de ses relevés bancaires.</p>`)
+ +t('6. Où saisir quoi',tab(['Événement','Où le saisir','Ce qui se passe'],[
+   ['La SARL verse un dividende à la holding','Holding ▸ Flux ▸ Dividende reçu','Trésorerie de la holding + ; dividende inscrit dans la SARL.'],
+   ['La holding facture des frais de gestion','Holding ▸ Flux ▸ Frais de gestion','Recette dans la holding, dépense « intra-groupe » dans la SARL.'],
+   ['La holding prête à la SCI','Holding ▸ Flux ▸ Avance, puis apport en compte courant dans la SCI','Créance de la holding sur la SCI.'],
+   ['La SARL prête à la holding','Holding ▸ Flux ▸ Avance reçue de la filiale','Dette de la holding ; compte courant de la holding dans la SARL négatif.'],
+   ['Vous avancez de l\'argent à la holding','Holding ▸ Dirigeant et associés ▸ Apport','Compte courant d\'associé de la holding.'],
+   ['Une facture client de la SARL','SARL ▸ Devis et factures','Chiffre d\'affaires, puis recette à l\'encaissement.']]))
+ +t('7. Repères fiscaux 2026',`<ul>
+  <li><b>Impôt sur les sociétés</b> : 15 % jusqu'à 42 500 € de bénéfice, puis 25 % (capital entièrement libéré et détenu à 75 % au moins par des personnes physiques, directement ou par une holding elle-même ainsi détenue).</li>
+  <li><b>Régime mère-fille</b> : participation d'au moins 5 % conservée deux ans ; les dividendes reçus sont exonérés sauf une quote-part de 5 % (1 % dans un groupe intégré).</li>
+  <li><b>Intégration fiscale</b> : au moins 95 % du capital, exercices de même durée clos à la même date, option pour 5 exercices ; la holding paie un seul impôt sur la somme des résultats, avec un seul taux réduit pour tout le groupe.</li>
+  <li><b>Dividendes versés à une personne physique</b> : prélèvement forfaitaire de 31,4 % (12,8 % d'impôt + 18,6 % de prélèvements sociaux).</li>
+  <li><b>Intérêts des avances d'associés</b> : déductibles jusqu'à 4,33 % pour les exercices clos du 30 juin au 29 septembre 2026 (taux publié chaque trimestre).</li>
+  <li><b>SCI</b> : au moins deux associés — par exemple la holding à 99 % et une personne physique à 1 %.</li></ul>
+  <p class="gd-note">Ces calculs sont des estimations de gestion : ils ne remplacent pas les comptes et les déclarations établis avec l'expert-comptable.</p>`)
+ +t('8. Données et sécurité',`<ul><li>Les données sont enregistrées dans votre base Firebase, accessible seulement après connexion et réservée à votre compte par les règles de la base.</li>
+  <li>Chaque société a sa branche : la SCI à la racine, la holding et la SARL dans leurs dossiers, et les réglages communs du groupe à part.</li>
+  <li>Sur un ordinateur partagé, pensez à vous déconnecter.</li></ul>`);
+}
+function ouvrirGuide(){
+ let ov=document.getElementById('guide-overlay');
+ if(!ov){
+  ov=document.createElement('div');ov.id='guide-overlay';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','Guide d\'utilisation');
+  ov.innerHTML=`<div class="gd-bar"><span class="gd-bar-t">Guide d'utilisation</span><div class="gd-bar-b"><button type="button" class="ac-btn-outline" id="gd-print">Imprimer ou PDF</button><button type="button" class="ac-btn-gold" id="gd-close">Fermer</button></div></div><article class="gd-body" id="gd-body"></article>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#gd-close').onclick=fermerGuide;
+  ov.querySelector('#gd-print').onclick=()=>{document.body.classList.add('guide-print');const t=document.title;document.title='Guide d\'utilisation — groupe';setTimeout(()=>{try{window.print();}finally{document.body.classList.remove('guide-print');document.title=t;}},50);};
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ov.classList.contains('open')){e.stopPropagation();fermerGuide();}},true);
+ }
+ ov.querySelector('#gd-body').innerHTML=guideHtml();
+ ov.classList.add('open');ov.scrollTop=0;ov.querySelector('#gd-close').focus();
+}
+function fermerGuide(){const ov=document.getElementById('guide-overlay');if(ov)ov.classList.remove('open');}
 
 // ---- Nom et logo de la société, posés partout où ils apparaissent ----
 function brandHtml(){
@@ -2215,12 +2364,8 @@ async function bootApp(){
     if(arr.length)window.__BOOT.associes=arr;
    }
   }
-  // Écran d'accueil : celui de la configuration du client s'il existe, sinon le modèle intégré
-  const host=document.getElementById('accueil-host');
-  if(host){
-   const perso=c&&typeof c.accueilHtml==='string'&&c.accueilHtml.trim();
-   host.outerHTML=perso?c.accueilHtml:document.getElementById('accueil-defaut').innerHTML;
-  }
+  // Pas d'écran d'accueil intermédiaire : la SCI s'ouvre directement sur sa gestion (le menu des sociétés joue ce rôle)
+  const host=document.getElementById('accueil-host');if(host)host.remove();
   applyBrand();
   if(FIREBASE_READY)hideLogin();
   const el=document.createElement('script');
@@ -12110,7 +12255,7 @@ function pageProfil(premiere){
  <div class="card"><div class="card-title" style="margin-bottom:4px">Participations</div><div class="ei-note" style="margin-bottom:12px">Pourcentage du capital détenu par la holding, date d'entrée et prix de revient des titres. Une SCI doit avoir au moins deux associés : la holding en détient donc moins de 100 %.</div>
   <div class="three-col">${inp('ei-p-pctSarl',d.pctSarl,'SARL : part détenue (%)')}${inp('ei-p-dateSarl',d.dateSarl,'Date d\'acquisition ou de création','date')}${inp('ei-p-prixSarl',d.prixSarl,'Prix de revient des titres (€)')}</div>
   <div class="three-col">${inp('ei-p-pctSci',d.pctSci,'SCI : part détenue (%)')}${inp('ei-p-dateSci',d.dateSci,'Date d\'acquisition ou de création','date')}${inp('ei-p-prixSci',d.prixSci,'Prix de revient des titres (€)')}</div>
-  <div class="two-col">${inp('ei-p-nomSci',d.nomSci,'Nom de la SCI','text','Affiché dans le menu et la vue du groupe.','Ex. : SCI des Tilleuls')}<div></div></div>
+  <div class="two-col">${inp('ei-p-nomSci',d.nomSci||(D.groupe||{}).nomSci||'','Nom de la SCI','text','Affiché dans le menu et la vue du groupe.','Ex. : SCI des Tilleuls')}<div></div></div>
   ${chk('merefille','Appliquer le régime mère-fille aux dividendes des filiales (option, participation d\'au moins 5 % conservée deux ans)')}
  </div>
  <div class="card"><div class="card-title" style="margin-bottom:12px">Exercice et capital</div>
